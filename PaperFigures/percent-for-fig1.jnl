@@ -1,0 +1,8 @@
+def sym perc ($1)
+
+let percent=($perc)
+let p`percent`_`pstartn-1`=t[gt=pax]*0
+save/clobber/file=p`percent`.nc p`percent`_`pstartn-1`
+can var p`percent`_`pstartn-1`
+repeat/range=`pstartn`:`pendn`:1/name=m (go "/home/jwb/FERRET/Scripts/EXTREME/window.jnl" m)
+can var percent

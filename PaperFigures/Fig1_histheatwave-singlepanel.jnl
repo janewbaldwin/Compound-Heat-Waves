@@ -1,0 +1,68 @@
+!HOW TO RUN ONCE IN PYFERRET, EXAMPLE FOR PARIS 2003 HEAT WAVE WITH NCEP 1 DATA:
+!go "/home/jwb/FERRET/Scripts/EXTREME/thresseas.jnl" ncep1_tmaxdaily_1948-2015.nc tmax gregorian 3 4 48 49 1-jan-1980 31-dec-2010 1-jun-2003 31-aug-2003
+!
+!RUN FROM VFTMP AND COPY DATA FILE INTO VFTMP BEFORE RUNNING.
+!FILE NAME CAN ALSO BE PRECEDED BY A DIRECTORYPATH.
+!
+!IF YOU ARE HAPPY WITH THE PLOT, SAVE IT AS FOLLOWS:
+!frame/file=yourchoicefigurename.png
+!or
+!frame/file=yourchoicefigurename.pdf
+!pngs are smaller files, but pdfs are easier to edit afterwards.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+cancel mode verify
+set mem/size=1200
+can mode logo
+can dat/all
+can var/all
+
+!INPUT
+def sym file ($1) ! eg /archive/jwb/OBS/NCEP1/ncep1_tmaxdaily_1948-2015.nc
+def sym var ($2) ! name of temp variable in file (eg tmax)
+def sym cal ($3) !calendar type of data eg gregorian
+def sym lone ($4) !east longitude eg 3 or 3E
+def sym lonw ($5) !west longitude eg 4 or 4E
+def sym lats ($6) !south latitude eg 48 or 48N
+def sym latn ($7) !north latitude eg 49 or 49 N
+def sym bstart ($8) !base period start eg 1-jan-1980
+def sym bend ($9) !break period end eg 31-dec-2010
+def sym pstart ($10) !plot time start eg 1-jun-2003
+def sym pend ($11) !plot end start eg 31-aug-2003
+
+!DATA
+use "($file)"
+
+!AVERAGE DATA OVER LOCATION
+let tloc=($var)[d=1,x=($lone):($lonw)@ave,y=($lats):($latn)@ave]
+
+!GENERATE BASE PERIOD FROM DATA
+def ax/t="($bstart)":"($bend)":1/unit=days/cal=($cal) tbaseax
+let tbase=tloc[gt=tbaseax@ave]
+
+!CALCULATE SINGLE DAY PERCENTILES WITH WINDOW OF DAYS
+let day=tax_jday(t[gt=tbase],tbase)
+let pstartn=day[t="($pstart)"]
+let pendn=day[t="($pend)"]
+let window=15 !WINDOW LENGTH
+let winhalf=(window-1)/2
+def ax/t="($pstart)":"($pend)":1/unit=days/cal=($cal) pax
+!go "/home/jwb/FERRET/Scripts/EXTREME/percent-for-fig1.jnl" 85
+go "/home/jwb/FERRET/Scripts/EXTREME/percent-for-fig1.jnl" 90
+!go "/home/jwb/FERRET/Scripts/EXTREME/percent-for-fig1.jnl" 95
+!go "/home/jwb/FERRET/Scripts/EXTREME/percent-for-fig1.jnl" 99
+
+
+!LOAD THRESHOLDS
+!use p85.nc
+use p90.nc
+!use p95.nc
+!use p99.nc
+
+!PLOT TIME SERIES AND THRESHOLDS
+set win/aspect=0.5
+plot/t=($pstart):($pend)/ylim=14:42/nokey/title="Tmax and Threshold" tloc-273.15
+!plot/over/nolab/nokey p85_`pendn`[d=p85.nc]-273.15
+plot/over/nolab/nokey p90_`pendn`[d=p90.nc]-273.15
+!plot/over/nolab/nokey p95_`pendn`[d=p95.nc]-273.15
+!plot/over/nolab/nokey p99_`pendn`[d=p99.nc]-273.15
+
