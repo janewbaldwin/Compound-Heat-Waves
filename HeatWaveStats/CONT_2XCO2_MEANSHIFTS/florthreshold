@@ -1,0 +1,24 @@
+#!/bin/bash
+#PBS -d /home/Jane.Baldwin/
+#PBS -N florthreshold
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1:ppn=6
+#PBS -j oe
+#PBS -o /home/Jane.Baldwin/PBS/JOBS/
+#PBS -r y
+#PBS -q bigmem
+
+. /usr/local/Modules/default/init/bash
+cd $TMPDIR
+dmget /archive/jwb/STEP/CONTROL/atmos_daily.04010101-04951231.t_ref_*.nc
+module load gcp
+gcp /archive/jwb/STEP/atmos_daily.static.nc $TMPDIR
+gcp /archive/jwb/STEP/CONTROL/atmos_daily.04010101-04951231.t_ref_*.nc $TMPDIR
+
+source /home/Jane.Baldwin/anaconda2/bin/activate /home/Jane.Baldwin/anaconda2/envs/mypy2
+
+python /home/Jane.Baldwin/PYTHON/STEP/ehfheatwaves_threshold.py -x $TMPDIR/atmos_daily.04010101-04951231.t_ref_max.nc --vnamex=t_ref_max -n $TMPDIR/atmos_daily.04010101-04951231.t_ref_min.nc --vnamen=t_ref_min --vnamet=time -m $TMPDIR/atmos_daily.static.nc --vnamem=land_mask --base=0401-0430 -p 99
+gcp threshold* /archive/jwb/STEP/CONTROL/
+
+
+

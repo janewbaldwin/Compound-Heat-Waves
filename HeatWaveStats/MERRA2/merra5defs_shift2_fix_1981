@@ -1,0 +1,27 @@
+#!/bin/bash
+#PBS -d /home/Jane.Baldwin/
+#PBS -N merrashift2
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1:ppn=6
+#PBS -j oe
+#PBS -o /home/Jane.Baldwin/PBS/JOBS/
+#PBS -r y
+#PBS -q bigmem
+
+. /usr/local/Modules/default/init/bash
+cd $TMPDIR
+dmget /archive/jbd/MERRA/MERRA2_1980-2015.nc
+dmget /archive/jwb/OBS/MERRA2/MERRA2_mask100.nc
+module load gcp
+gcp /archive/jbd/MERRA/MERRA2_1980-2015.nc $TMPDIR
+gcp /archive/jwb/OBS/MERRA2/MERRA2_mask100.nc $TMPDIR
+source /home/Jane.Baldwin/anaconda2/bin/activate /home/Jane.Baldwin/anaconda2/envs/mypy2
+
+python /home/Jane.Baldwin/PYTHON/STEP/ehfheatwaves_compound_5def_shift_fix7-18-17.py -x MERRA2_1980-2015.nc --vnamex=T2MMAX -n MERRA2_1980-2015.nc --vnamen=T2MMIN --vnamet=time -m MERRA2_mask100.nc --vnamem=FRLAND --t90pc --base=1981-2010 -d MERRA -e 0 -p 90 --shiftn=2.7 --shiftx=2.3
+
+mv tx90* tn90* /archive/jwb/STEP/MERRA/Shift_2_fix_1981/
+
+rm -f $TMPDIR/MERRA2_1980-2015.nc
+rm -f $TMPDIR/MERRA2_mask100.nc
+
+

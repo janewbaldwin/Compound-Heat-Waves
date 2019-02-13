@@ -1,0 +1,13 @@
+#!/bin/bash
+#PBS -d /home/Jane.Baldwin/
+#PBS -N flor2ens2_fix
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1:ppn=6
+#PBS -j oe
+#PBS -o /home/Jane.Baldwin/PBS/JOBS/
+#PBS -r y
+#PBS -q bigmem
+
+. /usr/local/Modules/default/init/bash
+cd $TMPDIR
+/home/jwb/PBS/FLOR2_Jane_fix.csh 2

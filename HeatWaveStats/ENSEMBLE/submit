@@ -1,0 +1,10 @@
+#PYTHON script.
+#Run with the following on command line.
+#python submit
+
+import os
+
+for i in range(1,6):
+	command = "msub flor2ens" + str(i) + "_fix"
+	os.system(command)
+

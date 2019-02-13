@@ -1,0 +1,40 @@
+#!/bin/bash
+#PBS -d /home/Jane.Baldwin/
+#PBS -N tave_fix
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1:ppn=6
+#PBS -j oe
+#PBS -o /home/Jane.Baldwin/PBS/JOBS/
+#PBS -r y
+#PBS -q bigmem
+
+. /usr/local/Modules/default/init/bash
+cd $TMPDIR
+
+dmget /archive/jwb/STEP/CONTROL/atmos_daily.04010101-04951231.t_ref_*.nc
+dmget /archive/jwb/STEP/CONTROL/threshold_0401-0430_9*pcntl.nc
+dmget /archive/jwb/STEP/SYN/FLOR_2xCO2-Cont_tave.nc
+module load gcp
+gcp /archive/jwb/STEP/atmos_daily.static.nc $TMPDIR
+gcp /archive/jwb/STEP/CONTROL/atmos_daily.04010101-04951231.t_ref_*.nc $TMPDIR
+gcp /archive/jwb/STEP/CONTROL/threshold_0401-0430_9*pcntl.nc $TMPDIR
+gcp /archive/jwb/STEP/SYN/FLOR_2xCO2-Cont_tave.nc $TMPDIR
+
+source /home/Jane.Baldwin/anaconda2/bin/activate /home/Jane.Baldwin/anaconda2/envs/mypy2
+
+python /home/Jane.Baldwin/PYTHON/STEP/ehfheatwaves_compound_inputthres_1.py --syn $TMPDIR/FLOR_2xCO2-Cont_tave.nc -x $TMPDIR/atmos_daily.04010101-04951231.t_ref_max.nc --vnamex=t_ref_max -n $TMPDIR/atmos_daily.04010101-04951231.t_ref_min.nc --vnamen=t_ref_min --vnamet=time -m $TMPDIR/atmos_daily.static.nc --vnamem=land_mask --base=0401-0430 -p 90 --thres $TMPDIR/threshold_0401-0430_90pcntl.nc --model FLOR_Tave_90pct_400yr
+
+python /home/Jane.Baldwin/PYTHON/STEP/ehfheatwaves_compound_inputthres_1.py --syn $TMPDIR/FLOR_2xCO2-Cont_tave.nc -x $TMPDIR/atmos_daily.04010101-04951231.t_ref_max.nc --vnamex=t_ref_max -n $TMPDIR/atmos_daily.04010101-04951231.t_ref_min.nc --vnamen=t_ref_min --vnamet=time -m $TMPDIR/atmos_daily.static.nc --vnamem=land_mask --base=0401-0430 -p 95 --thres $TMPDIR/threshold_0401-0430_95pcntl.nc --model FLOR_Tave_95pct_400yr
+
+python /home/Jane.Baldwin/PYTHON/STEP/ehfheatwaves_compound_inputthres_3.py --syn $TMPDIR/FLOR_2xCO2-Cont_tave.nc -x $TMPDIR/atmos_daily.04010101-04951231.t_ref_max.nc --vnamex=t_ref_max -n $TMPDIR/atmos_daily.04010101-04951231.t_ref_min.nc --vnamen=t_ref_min --vnamet=time -m $TMPDIR/atmos_daily.static.nc --vnamem=land_mask --base=0401-0430 -p 90 --thres $TMPDIR/threshold_0401-0430_90pcntl.nc --model FLOR_Tave_90pct_400yr
+
+python /home/Jane.Baldwin/PYTHON/STEP/ehfheatwaves_compound_inputthres_3.py --syn $TMPDIR/FLOR_2xCO2-Cont_tave.nc -x $TMPDIR/atmos_daily.04010101-04951231.t_ref_max.nc --vnamex=t_ref_max -n $TMPDIR/atmos_daily.04010101-04951231.t_ref_min.nc --vnamen=t_ref_min --vnamet=time -m $TMPDIR/atmos_daily.static.nc --vnamem=land_mask --base=0401-0430 -p 95 --thres $TMPDIR/threshold_0401-0430_95pcntl.nc --model FLOR_Tave_95pct_400yr
+
+python /home/Jane.Baldwin/PYTHON/STEP/ehfheatwaves_compound_inputthres_6.py --syn $TMPDIR/FLOR_2xCO2-Cont_tave.nc -x $TMPDIR/atmos_daily.04010101-04951231.t_ref_max.nc --vnamex=t_ref_max -n $TMPDIR/atmos_daily.04010101-04951231.t_ref_min.nc --vnamen=t_ref_min --vnamet=time -m $TMPDIR/atmos_daily.static.nc --vnamem=land_mask --base=0401-0430 -p 90 --thres $TMPDIR/threshold_0401-0430_90pcntl.nc --model FLOR_Tave_90pct_400yr
+
+python /home/Jane.Baldwin/PYTHON/STEP/ehfheatwaves_compound_inputthres_6.py --syn $TMPDIR/FLOR_2xCO2-Cont_tave.nc -x $TMPDIR/atmos_daily.04010101-04951231.t_ref_max.nc --vnamex=t_ref_max -n $TMPDIR/atmos_daily.04010101-04951231.t_ref_min.nc --vnamen=t_ref_min --vnamet=time -m $TMPDIR/atmos_daily.static.nc --vnamem=land_mask --base=0401-0430 -p 95 --thres $TMPDIR/threshold_0401-0430_95pcntl.nc --model FLOR_Tave_95pct_400yr
+
+gcp *heatwaves* /archive/jwb/STEP/SYN/TAVE_fix/
+
+
+

@@ -1,0 +1,59 @@
+can dat/all
+can var/all
+set mem/size=1200
+
+use "Control/atmos.0401-0500.t_ref_max.nc"
+use "Control/atmos.0401-0500.t_ref_min.nc"
+use "2XCO2/atmos.0401-0500.t_ref_max.nc"
+use "2XCO2/atmos.0401-0500.t_ref_min.nc"
+use "Control/atmos_daily.04010101-04951231.t_ref_max.NOBNDS_daily.nc"
+use "Control/atmos_daily.04010101-04951231.t_ref_min.NOBNDS_daily.nc"
+use "2XCO2/atmos_daily.04010101-04951231.t_ref_max.NOBNDS_daily.nc"
+use "2XCO2/atmos_daily.04010101-04951231.t_ref_min.NOBNDS_daily.nc"
+use "/archive/jwb/STEP/atmos_daily.static.nc"
+
+let land= if land_mask[d=9] gt 0.5 then 1
+
+let ctmax = t_ref_max[d=1,t="1-JUL-0401":"1-JUL-0495"]*land
+let ptmax = t_ref_max[d=3,t="1-JUL-0401":"1-JUL-0495"]*land
+let ctmin = t_ref_min[d=2,t="1-JUL-0401":"1-JUL-0495"]*land
+let ptmin = t_ref_min[d=4,t="1-JUL-0401":"1-JUL-0495"]*land
+let ctmaxclim = t_ref_max[d=5]*land
+let ptmaxclim = t_ref_max[d=7]*land
+let ctminclim =t_ref_min[d=6]*land
+let ptminclim = t_ref_min[d=8]*land
+
+! XYT ave
+let dmax0 = ptmax[t=@ave,y=@ave,x=@ave] - ctmax[t=@ave,y=@ave,x=@ave]
+let dmin0 = ptmin[t=@ave,y=@ave,x=@ave] - ctmin[t=@ave,y=@ave,x=@ave]
+let dummy = t[gt=ctmaxclim]+x[gx=ctmax]+y[gy=ctmax]
+let dmax = if dummy then `dmax0`
+let dmin = if dummy then `dmin0`
+save/clobber/file=FLOR_2xCO2-Cont_xytave.nc dmax,dmin
+
+! T ave
+let dmax0 = ptmax[t=@ave] - ctmax[t=@ave]
+let dmin0 = ptmin[t=@ave] - ctmin[t=@ave]
+let xydum = x[gx=dmax0]+y[gy=dmax0]
+let dmax1 = reshape(dmax0,xydum)
+let dmin1 = reshape(dmin0,xydum)
+let mask = if dummy then 1
+let dmax = mask*dmax1
+let dmin = mask*dmin1
+save/clobber/file=FLOR_2xCO2-Cont_tave.nc dmax,dmin
+
+! X,Y mean, 365 days
+let dmax0 = ptmaxclim - ctmaxclim
+let dmin0 = ptminclim - ctminclim
+let dmax1 = dmax0[x=@ave,y=@ave,l=@sbx:15]
+let dmin1 = dmin0[x=@ave,y=@ave,l=@sbx:15]
+let dmax = mask*dmax1
+let dmin = mask*dmin1
+save/clobber/file=FLOR_2xCO2-Cont_xyave365.nc dmax,dmin
+
+!365 days
+let dmax0 = ptmaxclim - ctmaxclim
+let dmin0 = ptminclim - ctminclim
+let dmax = dmax0[l=@sbx:15]
+let dmin = dmin0[l=@sbx:15]
+save/clobber/file=FLOR_2xCO2-Cont_365.nc dmax,dmin
